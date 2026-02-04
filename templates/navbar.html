@@ -22,13 +22,22 @@
         class="languageSelect bg-green-800 text-white px-4 py-2 rounded-full border border-green-500 focus:outline-none"
       ></select>
 
-      <a
-        href="#"
-        id="emergencyBtn"
-        class="bg-red-500 text-white px-5 py-2 rounded-full font-semibold hover:bg-red-600"
-      >
-        Emergency
-      </a>
+      <div class="flex items-center space-x-3">
+        <a
+          href="#"
+          id="emergencyBtn"
+          class="bg-red-500 text-white px-5 py-2 rounded-full font-semibold hover:bg-red-600"
+        >
+          Emergency
+        </a>
+        <button
+          id="themeToggle"
+          aria-label="Toggle Dark / Light Mode"
+          class="w-10 h-10 flex items-center justify-center rounded-full bg-green-900 text-white hover:bg-green-700 transition text-lg"
+          title="Toggle Dark / Light Mode"
+        >
+          🌙
+        </button>
+      </div>
     </div>
-  </div>
 </nav>

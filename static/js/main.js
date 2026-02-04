@@ -1,4 +1,36 @@
 document.addEventListener("DOMContentLoaded", () => {
+    /* ===============================
+     Dark / Light Theme Toggle
+     =============================== */
+
+  const themeToggleButton = document.getElementById("themeToggle");
+  const savedTheme = localStorage.getItem("acd_theme");
+
+  // Apply saved theme on page load
+  if (savedTheme === "dark") {
+    document.body.setAttribute("data-theme", "dark");
+    if (themeToggleButton) themeToggleButton.textContent = "☀️";
+  } else {
+    document.body.removeAttribute("data-theme");
+    if (themeToggleButton) themeToggleButton.textContent = "🌙";
+  }
+
+  // Toggle theme on button click
+  if (themeToggleButton) {
+    themeToggleButton.addEventListener("click", () => {
+      const isDark = document.body.getAttribute("data-theme") === "dark";
+
+      if (isDark) {
+        document.body.removeAttribute("data-theme");
+        localStorage.setItem("acd_theme", "light");
+        themeToggleButton.textContent = "🌙";
+      } else {
+        document.body.setAttribute("data-theme", "dark");
+        localStorage.setItem("acd_theme", "dark");
+        themeToggleButton.textContent = "☀️";
+      }
+    });
+  }
   // --- Elements for Step 1: Upload ---
   const imageInput = document.getElementById("image-input");
   const dropArea = document.getElementById("drop-area");
@@ -278,136 +310,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     handleFile(file);
   }
-
-  // Handle Predict button click (Initial Analysis)
-  predictButton.addEventListener("click", async () => {
-    hideError();
-    if (!currentImageFile) {
-      showError("Please select or drop an image first.");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("image", currentImageFile);
-
-    uploadSection.classList.add("hidden");
-    loadingSpinnerInitial.classList.remove("hidden");
-
-    // UI change: Hide intro/sample section.
-    introSampleSection.classList.add("hidden");
-
-    try {
-      const response = await fetch("/predict", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Prediction failed.");
-      }
-
-      const data = await response.json();
-      predictedDiseaseName = data.predicted_class_name;
-      currentConfidence = data.confidence; // Store confidence
-
-      let formattedDisease = predictedDiseaseName.replace(/_/g, " ");
-      const words = formattedDisease.split(" ");
-      if (words.length > 1 && words[0] === words[1]) {
-        words.splice(1, 1);
-      }
-      formattedDisease = words.join(" ");
-
-      predictionResult.innerHTML = `<span class="font-bold text-blue-800">${formattedDisease}</span>`;
-
-      confidenceBar.style.width = `${currentConfidence}%`;
-      confidenceBar.textContent = `${currentConfidence.toFixed(0)}%`;
-      confidenceScoreText.textContent = `${currentConfidence.toFixed(2)}%`;
-
-      loadingSpinnerInitial.classList.add("hidden");
-      diseaseDetectionSection.classList.remove("hidden"); // Show disease detection section
-      additionalInfoSection.classList.remove("hidden"); // Show additional info section
-
-      // Ensure the summary image and name are visible in the disease detection section
-      imagePreviewSummary.src = imagePreviewInitial.src;
-      imageNameSummary.textContent = imageNameInitial.textContent;
-    } catch (error) {
-      console.error("Error:", error);
-      loadingSpinnerInitial.classList.add("hidden");
-      uploadSection.classList.remove("hidden"); // Show upload section again
-      showError(`Failed to get prediction: ${error.message}`);
-      // Reset layout if prediction fails
-      introSampleSection.classList.remove("hidden");
-    }
-  });
-
-  // Handle Get Report button click (Detailed Report Generation)
-  getReportButton.addEventListener("click", async () => {
-    hideError();
-    const userContext = {
-      leaf_discoloration: leafDiscolorationSelect.value,
-      wilting_dropping: wiltingDroppingSelect.value,
-      recent_weather: recentWeatherSelect.value,
-      temperature_condition: temperatureConditionSelect.value,
-      recent_fertilizer: recentFertilizerSelect.value,
-      previous_pesticide: previousPesticideSelect.value,
-      insects_observed: insectsObservedSelect.value,
-      evidence_of_damage: evidenceOfDamageSelect.value,
-      watering_frequency: wateringFrequencySelect.value,
-      plant_age_growth: plantAgeGrowthSelect.value,
-    };
-
-    // Hide the "Additional Information" section (including its header) and the "Get AI Diagnosis" button
-    additionalInfoSection.classList.add("hidden");
-    getReportButton.classList.add("hidden");
-
-    loadingSpinnerReport.classList.remove("hidden"); // Show the dedicated report spinner
-    getReportButton.disabled = true; // Disable button during loading
-
-    try {
-      const response = await fetch("/get_diagnosis", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          disease_name: predictedDiseaseName,
-          lang:
-            window.AppLanguage && typeof window.AppLanguage.get === "function"
-              ? window.AppLanguage.get()
-              : localStorage.getItem("acd_lang") || "en",
-          user_context: userContext,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Diagnosis failed.");
-      }
-
-      const data = await response.json();
-      // Use marked.js to convert Markdown to HTML
-      finalReportContent.innerHTML = marked.parse(data.report);
-      enhanceReportPresentation(finalReportContent);
-
-      loadingSpinnerReport.classList.add("hidden");
-      reportSectionStandalone.classList.remove("hidden"); // Show the standalone report section
-    } catch (error) {
-      console.error("Error:", error);
-      loadingSpinnerReport.classList.add("hidden");
-      // If error, show "Additional Information" section and "Get AI Diagnosis" button again
-      additionalInfoSection.classList.remove("hidden");
-      getReportButton.classList.remove("hidden");
-      showError(`Failed to get report: ${error.message}`);
-    } finally {
-      getReportButton.disabled = false; // Re-enable button
-    }
-  });
-
-  // Handle Start Over button click
-  startOverButton.addEventListener("click", () => {
-    resetForm();
-  });
 
     // Handle Predict button click (Initial Analysis)
     predictButton.addEventListener('click', async () => {
