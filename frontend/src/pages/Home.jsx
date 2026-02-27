@@ -168,11 +168,13 @@ const Home = () => {
                             </motion.div>
                         ) : (
                             <div className="drop-content flex-center" style={{ flexDirection: 'column' }}>
-                                <Upload size={56} color="var(--primary-color)" style={{ marginBottom: '1.5rem', opacity: 0.8 }} />
-                                <p className="heading-2" style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Drag & drop your leaf image</p>
-                                <p className="body-text" style={{ marginBottom: '1.5rem', fontSize: '0.95rem' }}>Supports JPG, PNG and JPEG</p>
+                                <div className="upload-icon-wrapper">
+                                    <Upload size={32} color="var(--primary-color)" />
+                                </div>
+                                <h3 className="heading-3" style={{ fontSize: '1.25rem', marginBottom: '0.5rem', fontWeight: 600 }}>Click or drag & drop to upload</h3>
+                                <p className="body-text" style={{ marginBottom: '1.5rem', fontSize: '0.9rem', color: 'var(--text-light)' }}>SVG, PNG, JPG or GIF (max. 5MB)</p>
+                                <span className="btn-secondary" style={{ padding: '0.5rem 1.25rem', fontSize: '0.9rem' }}>Browse Files</span>
                                 <input id="file-upload" type="file" hidden accept="image/*" onChange={handleImageChange} />
-                                <span className="btn-secondary" style={{ padding: '0.6rem 1.5rem', fontSize: '0.95rem' }}>Browse Files</span>
                             </div>
                         )}
                     </div>
