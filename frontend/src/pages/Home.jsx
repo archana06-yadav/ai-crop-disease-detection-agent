@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { Upload, AlertCircle, CheckCircle2, Loader, Menu, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import './Home.css';
 
 const API_URL = 'http://127.0.0.1:5000';
@@ -107,16 +108,38 @@ const Home = () => {
         }
     };
 
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: { staggerChildren: 0.15 }
+        }
+    };
+
+    const itemVariants = {
+        hidden: { y: 20, opacity: 0 },
+        visible: {
+            y: 0,
+            opacity: 1,
+            transition: { type: 'spring', stiffness: 100 }
+        }
+    };
+
     return (
-        <div className="home-container container">
-            <div className="hero-section">
+        <motion.div
+            className="home-container container"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+        >
+            <motion.div className="hero-section" variants={itemVariants}>
                 <h1 className="heading-1 text-gradient">AI Crop Disease Diagnosis</h1>
                 <p className="body-text">Upload a picture of your plant leaf and get an instant AI-powered diagnosis along with tailored treatment plans.</p>
-            </div>
+            </motion.div>
 
             <div className="diagnosis-grid">
                 {/* Upload Section */}
-                <div className="upload-card glass-panel">
+                <motion.div className="upload-card glass-panel" variants={itemVariants}>
                     <h2 className="heading-2">Upload Image</h2>
 
                     <div
@@ -125,12 +148,16 @@ const Home = () => {
                         onDrop={handleDrop}
                     >
                         {previewUrl ? (
-                            <div className="image-preview-container">
+                            <motion.div
+                                className="image-preview-container"
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                            >
                                 <img src={previewUrl} alt="Preview" className="image-preview" />
                                 <button className="remove-image-btn" onClick={() => { setSelectedImage(null); setPreviewUrl(null); }}>
                                     <X size={20} />
                                 </button>
-                            </div>
+                            </motion.div>
                         ) : (
                             <div className="drop-content flex-center" style={{ flexDirection: 'column' }}>
                                 <Upload size={48} className="text-light" style={{ marginBottom: '1rem' }} />
@@ -155,75 +182,107 @@ const Home = () => {
                         </button>
                     </div>
 
-                    {error && (
-                        <div className="error-alert">
-                            <AlertCircle size={20} />
-                            <span>{error}</span>
-                        </div>
-                    )}
-                </div>
+                    <AnimatePresence>
+                        {error && (
+                            <motion.div
+                                className="error-alert"
+                                initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                                animate={{ opacity: 1, height: 'auto', marginTop: '1.5rem' }}
+                                exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                            >
+                                <AlertCircle size={20} />
+                                <span>{error}</span>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </motion.div>
 
                 {/* Results Section */}
-                {prediction && (
-                    <div className="result-card glass-panel animate-fade-in">
-                        <h2 className="heading-2">Diagnosis Result</h2>
-                        <div className="prediction-box">
-                            <CheckCircle2 color="var(--primary-color)" size={32} />
-                            <div>
-                                <h3 className="disease-name">{prediction.predicted_class_name.replace(/_/g, ' ')}</h3>
-                                <p className="confidence">Confidence: {prediction.confidence.toFixed(2)}%</p>
+                <AnimatePresence>
+                    {prediction && (
+                        <motion.div
+                            className="result-card glass-panel"
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            transition={{ type: 'spring', stiffness: 100 }}
+                        >
+                            <h2 className="heading-2">Diagnosis Result</h2>
+                            <div className="prediction-box">
+                                <CheckCircle2 color="var(--primary-color)" size={32} />
+                                <div>
+                                    <h3 className="disease-name">{prediction.predicted_class_name.replace(/_/g, ' ')}</h3>
+                                    <p className="confidence">Confidence: {prediction.confidence.toFixed(2)}%</p>
+                                </div>
                             </div>
-                        </div>
 
-                        {!report && !questionnaire ? (
-                            <div style={{ marginTop: '2rem' }}>
-                                <p className="body-text" style={{ marginBottom: '1rem' }}>Get a detailed personalized report by providing context, or generate an instant report.</p>
-                                <div style={{ display: 'flex', gap: '1rem' }}>
-                                    <button className="btn-primary flex-1" onClick={generateReport} disabled={reportLoading}>
-                                        {reportLoading ? <Loader className="spin" size={20} /> : 'Instant Report'}
-                                    </button>
-                                    <button className="btn-secondary flex-1" onClick={() => setQuestionnaire(true)}>
-                                        Add Context
-                                    </button>
-                                </div>
-                            </div>
-                        ) : null}
+                            {!report && !questionnaire ? (
+                                <motion.div
+                                    style={{ marginTop: '2rem' }}
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                >
+                                    <p className="body-text" style={{ marginBottom: '1rem' }}>Get a detailed personalized report by providing context, or generate an instant report.</p>
+                                    <div style={{ display: 'flex', gap: '1rem' }}>
+                                        <button className="btn-primary flex-1" onClick={generateReport} disabled={reportLoading}>
+                                            {reportLoading ? <Loader className="spin" size={20} /> : 'Instant Report'}
+                                        </button>
+                                        <button className="btn-secondary flex-1" onClick={() => setQuestionnaire(true)}>
+                                            Add Context
+                                        </button>
+                                    </div>
+                                </motion.div>
+                            ) : null}
 
-                        {questionnaire && !report && (
-                            <div className="questionnaire animate-fade-in">
-                                <h3 style={{ marginBottom: '1rem', marginTop: '1.5rem' }}>Additional Context</h3>
-                                <div className="form-group">
-                                    <label>Leaf discoloration observed?</label>
-                                    <input type="text" name="leaf_discoloration" value={formData.leaf_discoloration} onChange={handleFormChange} placeholder="e.g. Yellow spots" />
-                                </div>
-                                <div className="form-group">
-                                    <label>Recent weather?</label>
-                                    <input type="text" name="recent_weather" value={formData.recent_weather} onChange={handleFormChange} placeholder="e.g. Heavy rain" />
-                                </div>
-                                <button className="btn-primary" onClick={generateReport} disabled={reportLoading} style={{ width: '100%', marginTop: '1rem' }}>
-                                    {reportLoading ? <Loader className="spin" size={20} /> : 'Generate Detailed Report'}
-                                </button>
-                            </div>
-                        )}
+                            <AnimatePresence>
+                                {questionnaire && !report && (
+                                    <motion.div
+                                        className="questionnaire"
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: 'auto' }}
+                                        exit={{ opacity: 0, height: 0 }}
+                                    >
+                                        <h3 style={{ marginBottom: '1rem', marginTop: '1.5rem' }}>Additional Context</h3>
+                                        <div className="form-group">
+                                            <label>Leaf discoloration observed?</label>
+                                            <input type="text" name="leaf_discoloration" value={formData.leaf_discoloration} onChange={handleFormChange} placeholder="e.g. Yellow spots" />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Recent weather?</label>
+                                            <input type="text" name="recent_weather" value={formData.recent_weather} onChange={handleFormChange} placeholder="e.g. Heavy rain" />
+                                        </div>
+                                        <button className="btn-primary" onClick={generateReport} disabled={reportLoading} style={{ width: '100%', marginTop: '1rem' }}>
+                                            {reportLoading ? <Loader className="spin" size={20} /> : 'Generate Detailed Report'}
+                                        </button>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
 
-                        {report && (
-                            <div className="report-container animate-fade-in">
-                                <h3>Treatment Plan</h3>
-                                {/* Simple markdown parser for the report display */}
-                                <div className="report-content">
-                                    {report.split('\n').map((line, idx) => {
-                                        if (line.startsWith('*') && line.endsWith('*')) return <strong key={idx} style={{ display: 'block', marginTop: '1rem' }}>{line.replace(/\*/g, '')}</strong>;
-                                        if (line.startsWith('-')) return <li key={idx} style={{ marginLeft: '1.5rem', marginBottom: '0.5rem' }}>{line.substring(1)}</li>;
-                                        if (line.trim() === '') return <br key={idx} />;
-                                        return <p key={idx} style={{ marginBottom: '0.5rem' }}>{line}</p>;
-                                    })}
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                )}
+                            <AnimatePresence>
+                                {report && (
+                                    <motion.div
+                                        className="report-container"
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                    >
+                                        <h3>Treatment Plan</h3>
+                                        {/* Simple markdown parser for the report display */}
+                                        <div className="report-content">
+                                            {report.split('\n').map((line, idx) => {
+                                                if (line.startsWith('*') && line.endsWith('*')) return <strong key={idx} style={{ display: 'block', marginTop: '1rem' }}>{line.replace(/\*/g, '')}</strong>;
+                                                if (line.startsWith('-')) return <li key={idx} style={{ marginLeft: '1.5rem', marginBottom: '0.5rem' }}>{line.substring(1)}</li>;
+                                                if (line.trim() === '') return <br key={idx} />;
+                                                return <p key={idx} style={{ marginBottom: '0.5rem' }}>{line}</p>;
+                                            })}
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
-        </div>
+        </motion.div>
     );
 };
 

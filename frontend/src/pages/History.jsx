@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Clock, Loader, AlertCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
 import './History.css';
 
 const API_URL = 'http://127.0.0.1:5000';
@@ -37,8 +38,30 @@ const History = () => {
         });
     };
 
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: { staggerChildren: 0.1 }
+        }
+    };
+
+    const cardVariants = {
+        hidden: { y: 20, opacity: 0 },
+        visible: {
+            y: 0,
+            opacity: 1,
+            transition: { type: 'spring', stiffness: 100 }
+        }
+    };
+
     return (
-        <div className="history-container container">
+        <motion.div
+            className="history-container container"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4 }}
+        >
             <div className="history-header">
                 <h1 className="heading-1 text-gradient">Diagnosis History</h1>
                 <p className="body-text">Review your past plant disease diagnoses and track your crop's health over time.</p>
@@ -57,15 +80,30 @@ const History = () => {
                     <p style={{ marginTop: '1rem' }} className="text-light">Loading history...</p>
                 </div>
             ) : history.length === 0 ? (
-                <div className="empty-state glass-panel flex-center" style={{ minHeight: '300px', flexDirection: 'column' }}>
+                <motion.div
+                    className="empty-state glass-panel flex-center"
+                    style={{ minHeight: '300px', flexDirection: 'column' }}
+                    initial={{ scale: 0.95, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                >
                     <Clock size={64} color="var(--text-light)" style={{ marginBottom: '1rem', opacity: 0.5 }} />
                     <h2 className="heading-2">No History Yet</h2>
                     <p className="body-text">Diagnose some plants to see your history here.</p>
-                </div>
+                </motion.div>
             ) : (
-                <div className="history-grid">
+                <motion.div
+                    className="history-grid"
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                >
                     {history.map((item, index) => (
-                        <div key={index} className="history-card glass-panel animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
+                        <motion.div
+                            key={index}
+                            className="history-card glass-panel"
+                            variants={cardVariants}
+                            whileHover={{ y: -5, boxShadow: '0 12px 40px rgba(31, 38, 135, 0.15)' }}
+                        >
                             {item.image_base64 && (
                                 <div className="history-image">
                                     <img src={`data:image/jpeg;base64,${item.image_base64}`} alt="Diagnosed leaf" />
@@ -85,11 +123,11 @@ const History = () => {
                                     <span>{formatDate(item.timestamp)}</span>
                                 </div>
                             </div>
-                        </div>
+                        </motion.div>
                     ))}
-                </div>
+                </motion.div>
             )}
-        </div>
+        </motion.div>
     );
 };
 
