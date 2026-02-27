@@ -137,15 +137,16 @@ const Home = () => {
                 <p className="body-text">Upload a picture of your plant leaf and get an instant AI-powered diagnosis along with tailored treatment plans.</p>
             </motion.div>
 
-            <div className="diagnosis-grid">
+            <div className={`diagnosis-grid ${prediction ? 'has-results' : ''}`}>
                 {/* Upload Section */}
                 <motion.div className="upload-card glass-panel" variants={itemVariants}>
-                    <h2 className="heading-2">Upload Image</h2>
+                    <h2 className="heading-2" style={{ textAlign: 'center', marginBottom: '2rem' }}>Upload Image</h2>
 
                     <div
                         className={`drop-zone ${previewUrl ? 'has-image' : ''}`}
                         onDragOver={handleDragOver}
                         onDrop={handleDrop}
+                        onClick={() => !previewUrl && document.getElementById('file-upload').click()}
                     >
                         {previewUrl ? (
                             <motion.div
@@ -154,31 +155,36 @@ const Home = () => {
                                 animate={{ opacity: 1, scale: 1 }}
                             >
                                 <img src={previewUrl} alt="Preview" className="image-preview" />
-                                <button className="remove-image-btn" onClick={() => { setSelectedImage(null); setPreviewUrl(null); }}>
+                                <button
+                                    className="remove-image-btn"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setSelectedImage(null);
+                                        setPreviewUrl(null);
+                                    }}
+                                >
                                     <X size={20} />
                                 </button>
                             </motion.div>
                         ) : (
                             <div className="drop-content flex-center" style={{ flexDirection: 'column' }}>
-                                <Upload size={48} className="text-light" style={{ marginBottom: '1rem' }} />
-                                <p>Drag & drop your leaf image here</p>
-                                <span className="text-light" style={{ margin: '0.5rem 0' }}>or</span>
-                                <label className="btn-secondary" style={{ cursor: 'pointer' }}>
-                                    Browse Files
-                                    <input type="file" hidden accept="image/*" onChange={handleImageChange} />
-                                </label>
+                                <Upload size={56} color="var(--primary-color)" style={{ marginBottom: '1.5rem', opacity: 0.8 }} />
+                                <p className="heading-2" style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Drag & drop your leaf image</p>
+                                <p className="body-text" style={{ marginBottom: '1.5rem', fontSize: '0.95rem' }}>Supports JPG, PNG and JPEG</p>
+                                <input id="file-upload" type="file" hidden accept="image/*" onChange={handleImageChange} />
+                                <span className="btn-secondary" style={{ padding: '0.6rem 1.5rem', fontSize: '0.95rem' }}>Browse Files</span>
                             </div>
                         )}
                     </div>
 
-                    <div className="actions" style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+                    <div className="actions" style={{ marginTop: '2rem', textAlign: 'center' }}>
                         <button
                             className="btn-primary"
                             onClick={handlePredict}
                             disabled={!selectedImage || loading}
-                            style={{ width: '100%', maxWidth: '300px' }}
+                            style={{ width: '100%', maxWidth: '300px', padding: '1rem', fontSize: '1.1rem' }}
                         >
-                            {loading ? <><Loader className="spin" size={20} /> Analyzing...</> : 'Analyze Image'}
+                            {loading ? <><Loader className="spin" size={24} /> Analyzing leaf...</> : <><CheckCircle2 size={24} /> Analyze Image</>}
                         </button>
                     </div>
 

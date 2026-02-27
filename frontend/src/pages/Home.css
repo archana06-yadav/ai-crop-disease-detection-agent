@@ -13,11 +13,16 @@
     grid-template-columns: 1fr;
     gap: 2rem;
     align-items: start;
+    justify-content: center;
 }
 
 @media (min-width: 992px) {
-    .diagnosis-grid {
+    .diagnosis-grid.has-results {
         grid-template-columns: 1fr 1fr;
+    }
+
+    .diagnosis-grid:not(.has-results) {
+        grid-template-columns: minmax(auto, 600px);
     }
 }
 
@@ -27,22 +32,25 @@
 }
 
 .drop-zone {
-    border: 2px dashed rgba(46, 125, 50, 0.3);
-    border-radius: 1rem;
-    padding: 2rem;
+    border: 2px dashed rgba(16, 185, 129, 0.4);
+    border-radius: 1.25rem;
+    padding: 3rem 2rem;
     text-align: center;
-    transition: all 0.3s ease;
-    min-height: 250px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    min-height: 280px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: rgba(255, 255, 255, 0.4);
+    background-color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
 }
 
 .drop-zone:hover,
 .drop-zone.active {
     border-color: var(--primary-color);
-    background-color: rgba(46, 125, 50, 0.05);
+    background-color: rgba(16, 185, 129, 0.08);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.1);
 }
 
 .drop-zone.has-image {
