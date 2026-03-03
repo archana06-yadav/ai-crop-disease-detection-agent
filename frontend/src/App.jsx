@@ -1,12 +1,12 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
-// Using placeholders until we create actual pages
 import Home from './pages/Home';
 import History from './pages/History';
 import Tools from './pages/Tools';
 import UserGuide from './pages/UserGuide';
 import { Privacy, Terms, Disclaimer } from './pages/LegalPages';
+import ScrollToTopButton from './components/ScrollToTopButton';
 
 function App() {
   return (
@@ -26,6 +26,7 @@ function App() {
           </Route>
         </Routes>
       </BrowserRouter>
+      <ScrollToTopButton /> {/* Fixed button */}
     </>
   );
 }
